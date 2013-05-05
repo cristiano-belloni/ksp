@@ -1,99 +1,104 @@
 define(['require', 'kievII'], function(require, K2) {
-        
-    /* This gets returned to the host as soon as the plugin is loaded */        
+
+    var imgResources = null;
+
+    /* This gets returned to the host as soon as the plugin is loaded */
     var pluginConf = {
-        osc: true,
+        name: "KSP",
+        osc: false,
         audioIn: 0,
         audioOut: 1,
-        canvas: {
+        version: '0.0.1-alpha1',
+        ui: {
+            type: 'canvas',
             width: 428,
             height: 348
         }
     };
-    
+
     /* This gets called when all the resources are loaded */
     var pluginFunction = function (args, resources) {
-        
+
         var keyBlackImage = resources[0];
         var keyWhiteImage = resources[1];
         var keyBlackDownImage = resources[2];
         var keyWhiteDownImage = resources[3];
         var deckImage = resources[4];
-        
+
         console.log ("plugin inited, args is", args, "KievII object is ", K2);
-        
+
         this.name = args.name;
         this.id = args.id;
-        
+
         // The sound part
         this.audioDestination = args.audioDestinations[0];
         this.audioContext = args.audioContext;
-        
-        this.audioBuffer = null; 
-        
+
+        this.audioBuffer = null;
+
         this.ui = new K2.UI ({type: 'CANVAS2D', target: args.canvas}, {'breakOnFirstEvent': true});
-        
+
         this.viewWidth = args.canvas.width;
         this.viewHeight = args.canvas.height;
         this.canvas = args.canvas;
-        
-        this.handler = args.OSCHandler;
-        
+
+        /*this.handler = args.OSCHandler;
+
         var oscCallback = function (message) {
            console.log ("KSP-001 received message: ", message);
            var dest = message.toString();
         }.bind(this);
-            
-        this.handler.setCallback(oscCallback);
-        
+
+        this.handler.setCallback(oscCallback); */
+
         // Member methods
         this.drop = function (evt) {
             evt.stopPropagation();
             evt.preventDefault();
-         
+
             var files = evt.dataTransfer.files;
             var count = files.length;
-         
+
             // Only call the handler if 1 or more files was dropped.
             if (count > 0)
             this.handleFiles(files);
         }.bind(this);
-        
+
         this.handleFiles = function (files) {
-        
+
             var file = files[0];
             console.log ("Loading ", file.name);
             var reader = new FileReader();
-        
+
             // init the reader event handlers
             reader.onload = this.handleReaderLoad;
             // begin the read operation
             reader.readAsArrayBuffer(file);
         }.bind(this);
-        
+
         this.playFinishedCallback = function () {
             console.log('playback finished');
         }
         this.viewCurrentTime = function (time) {
             console.log(time);
         }
-        
+
         this.successCallback = function (decoded) {
             console.log ("Decode succeeded!");
-            
+
             this.audioBuffer = decoded;
-            
+
             this.decoded_arrayL = decoded.getChannelData (0);
-            
+
             // Todo one has got to check if the signal is mono or stero here
             //this.decoded_arrayR = decoded.getChannelData (1);
-            
+
             console.log ("I got the data!");
-            
+
             var waveID = 'wavebox_L';
-            
+
             if (!(this.ui.isElement(waveID))) {
-            
+
                 // Wavebox parameters
                 var waveboxArgs = {
                     ID: waveID,
@@ -105,48 +110,48 @@ define(['require', 'kievII'], function(require, K2) {
                     waveColor: '#CC0000',
                     transparency: 0.8
                 };
-                
+
                 waveboxArgs.onValueSet = function (slot, value, element) {
                     console.log ("onValueSet callback: slot is ", slot, " and value is ", value, " while el is ", element);
                     this.ui.refresh();
                 }.bind(this);
-        
+
                 var waveBox_L = new K2.Wavebox(waveboxArgs);
                 this.ui.addElement(waveBox_L, {zIndex: 2});
             }
-        
-            this.ui.setValue ({elementID: waveID, slot: "waveboxsignal", value: this.decoded_arrayL});     
-        
+
+            this.ui.setValue ({elementID: waveID, slot: "waveboxsignal", value: this.decoded_arrayL});
+
             this.ui.refresh();
-            
+
         }.bind(this);
-    
+
         this.errorCallback = function () {
             console.log ("Error!");
             alert ("Error decoding ");
-        }.bind(this);   
-        
+        }.bind(this);
+
         this.handleReaderLoad = function (evt) {
             console.log (evt);
-            
+
             console.log ("Decoding file");
-            
+
             this.audioContext.decodeAudioData(evt.target.result, this.successCallback, this.errorCallback);
-            
+
         }.bind(this);
-        
+
         // Drop event
         this.noopHandler = function(evt) {
             evt.stopPropagation();
             evt.preventDefault();
         };
-        
+
         // Init event handlers
         this.canvas.addEventListener("dragenter", this.noopHandler, false);
         this.canvas.addEventListener("dragexit", this.noopHandler, false);
         this.canvas.addEventListener("dragover", this.noopHandler, false);
         this.canvas.addEventListener("drop", this.drop, false);
-    
+
         // Background
         var bgArgs = new K2.Background({
             ID: 'background',
@@ -154,32 +159,32 @@ define(['require', 'kievII'], function(require, K2) {
             top: 0,
             left: 0
         });
-    
+
         this.ui.addElement(bgArgs, {zIndex: 0});
-    
+
         var keyCallback = function (slot, value, element) {
-            
+
             var stIndex = 0;
             var stPower = 0;
             var whiteKeysSemitones = [0,2,4,5,7,9,11,12,14,16,17,19,21,23];
             var blackKeysSemitones = [1,3,6,8,10,13,15,18,20,22];
-            
+
             if (element.indexOf("wk_") === 0) {
                 stIndex = element.split("wk_")[1];
                 stPower = whiteKeysSemitones[stIndex];
             }
-            
+
             else  if (element.indexOf("bk_") === 0) {
                 stIndex = element.split("bk_")[1];
                 stPower = blackKeysSemitones[stIndex];
             }
-            
+
             else {
                 return;
             }
-            
+
             if (this.audioBuffer !== null) {
-               if (value === 1) { 
+               if (value === 1) {
                    this.bSrc = this.audioContext.createBufferSource();
                    this.bSrc.connect (this.audioDestination);
                    this.bSrc.buffer = this.audioBuffer;
@@ -200,14 +205,14 @@ define(['require', 'kievII'], function(require, K2) {
 	 				   else {
 	 					   	this.bSrc.stop(0);
 	 				   }
-                        
+
                     }
                 }
             }
-         
+
                this.ui.refresh();
             }.bind(this);
-    
+
         // White keys
         var whiteKeyArgs = {
             ID: "",
@@ -217,14 +222,14 @@ define(['require', 'kievII'], function(require, K2) {
             imagesArray : [keyWhiteImage, keyWhiteDownImage],
             onValueSet: keyCallback
         };
-        
+
         for (i = 0; i < 14; i+=1) {
             whiteKeyArgs.top = 204;
-            whiteKeyArgs.left = 4 + i * 30;    
+            whiteKeyArgs.left = 4 + i * 30;
             whiteKeyArgs.ID = "wk_" + i;
             this.ui.addElement(new K2.Button(whiteKeyArgs), {zIndex: 1});
         }
-        
+
         // Black keys
         var blackKeyArgs = {
                 ID: "",
@@ -234,24 +239,25 @@ define(['require', 'kievII'], function(require, K2) {
                 imagesArray : [keyBlackImage, keyBlackDownImage],
                 onValueSet: keyCallback
             };
-            
+
             var bkArray = [24, 54, 114, 144, 174, 234, 264, 324, 354, 384];
-        
+
             for (var i = 0; i < bkArray.length; i+=1) {
                 blackKeyArgs.top = 203;
-                blackKeyArgs.left = bkArray[i];    
+                blackKeyArgs.left = bkArray[i];
                 blackKeyArgs.ID = "bk_" + i;
                 this.ui.addElement(new K2.Button(blackKeyArgs), {zIndex: 10});
             }
             this.ui.refresh();
-        
+
         // Initialization made it so far: plugin is ready.
-        args.hostInterface.setInstanceStatus ('ready');  
+        args.hostInterface.setInstanceStatus ('ready');
     };
-    
+
     /* This function gets called by the host every time an instance of
-       the plugin is requested [e.g: displayed on screen] */        
+       the plugin is requested [e.g: displayed on screen] */
     function initPlugin (initArgs) {
+
         var args = initArgs;
 
         var requireErr = function (err) {
@@ -260,24 +266,31 @@ define(['require', 'kievII'], function(require, K2) {
             args.hostInterface.setInstanceStatus ('fatal', {description: 'Error initializing plugin: ' + failedId});
         }.bind(this);
 
-        var resList = [ 'image!./assets/images/keyblack.png',
-                        'image!./assets/images/keywhite.png',
-                        'image!./assets/images/keyblack_down.png',
-                        'image!./assets/images/keywhite_down.png',
-                        'image!./assets/images/deck.png'
-                        ];
+        if (imgResources === null) {
+            var resList = [ 'image!./assets/images/keyblack.png!rel',
+                            'image!./assets/images/keywhite.png!rel',
+                            'image!./assets/images/keyblack_down.png!rel',
+                            'image!./assets/images/keywhite_down.png!rel',
+                            'image!./assets/images/deck.png!rel'
+                            ];
 
-        require (resList,
-                    function () {
-                        pluginFunction.call (this, args, arguments);
-                    }.bind(this),
-                    function (err) {
-                        requireErr (err);
-                    }
-                );
-               
+            require (resList,
+                        function () {
+                            imgResources = arguments;
+                            pluginFunction.call (this, args, arguments);
+                        }.bind(this),
+                        function (err) {
+                            requireErr (err);
+                        }
+                    );
+        }
+
+        else {
+            pluginFunction.call (this, args, imgResources);
+        }
+
     };
- 
+
     return {
       initPlugin: initPlugin,
       pluginConf: pluginConf
