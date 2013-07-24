@@ -1,4 +1,4 @@
-define(['require', 'kievII', 'image'], function(require, K2) {
+define(['require', 'github:janesconference/KievII@0.5/dist/kievII'], function(require, K2) {
 
     var imgResources = null;
 
