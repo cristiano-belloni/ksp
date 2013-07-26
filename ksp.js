@@ -258,13 +258,20 @@ define(['require', 'github:janesconference/KievII@v0.5.0-jspm/dist/kievII'], fun
        the plugin is requested [e.g: displayed on screen] */
     function initPlugin (initArgs) {
 
+        console.log ("HI");
+        debugger;
+
         var args = initArgs;
+
+        console.log ("initArgs", initArgs);
 
         var requireErr = function (err) {
             var failedId = err.requireModules && err.requireModules[0];
             requirejs.undef(failedId);
             args.hostInterface.setInstanceStatus ('fatal', {description: 'Error initializing plugin: ' + failedId});
         }.bind(this);
+
+        console.log ("imgResources", imgResources);
 
         if (imgResources === null) {
             var resList = [ 'image!./assets/images/keyblack.png!rel',
@@ -274,12 +281,16 @@ define(['require', 'github:janesconference/KievII@v0.5.0-jspm/dist/kievII'], fun
                             'image!./assets/images/deck.png!rel'
                             ];
 
+            console.log ("requiring...");
+
             require (resList,
                         function () {
+                            console.log ("required...");
                             imgResources = arguments;
                             pluginFunction.call (this, args, arguments);
                         }.bind(this),
                         function (err) {
+                            console.log ("require error");
                             requireErr (err);
                         }
                     );
