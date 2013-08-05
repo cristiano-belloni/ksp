@@ -274,11 +274,11 @@ define(['require', 'github:janesconference/KievII@v0.5.0-jspm/dist/kievII'], fun
         console.log ("imgResources", imgResources);
 
         if (imgResources === null) {
-            var resList = [ 'image!./assets/images/keyblack.png',
-                            'image!./assets/images/keywhite.png',
-                            'image!./assets/images/keyblack_down.png',
-                            'image!./assets/images/keywhite_down.png',
-                            'image!./assets/images/deck.png'
+            var resList = [ './assets/images/keyblack.png!image',
+                            './assets/images/keywhite.png!image',
+                            './assets/images/keyblack_down.png!image',
+                            './assets/images/keywhite_down.png!image',
+                            './assets/images/deck.png!image'
                             ];
 
             console.log ("requiring...");
