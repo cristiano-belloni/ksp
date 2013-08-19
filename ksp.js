@@ -42,6 +42,16 @@ define(['require', 'kievII', 'image'], function(require, K2) {
         this.viewHeight = args.canvas.height;
         this.canvas = args.canvas;
 
+        if (args.initialState && args.initialState.bin) {
+            /* Load data */
+            var evt = {};
+            evt.target = args.initialState.bin.sample;
+            this.handleReaderLoad (evt);
+        }
+        else {
+            this.loadedSample = null;
+        }
+
         /*this.handler = args.OSCHandler;
 
         var oscCallback = function (message) {
@@ -90,7 +100,7 @@ define(['require', 'kievII', 'image'], function(require, K2) {
 
             this.decoded_arrayL = decoded.getChannelData (0);
 
-            // Todo one has got to check if the signal is mono or stero here
+            // TODO check if the signal is mono or stero here
             //this.decoded_arrayR = decoded.getChannelData (1);
 
             console.log ("I got the data!");
@@ -132,6 +142,8 @@ define(['require', 'kievII', 'image'], function(require, K2) {
         }.bind(this);
 
         this.handleReaderLoad = function (evt) {
+
+            this.loadedSample = evt.target.result;
             console.log (evt);
 
             console.log ("Decoding file");
@@ -249,6 +261,10 @@ define(['require', 'kievII', 'image'], function(require, K2) {
                 this.ui.addElement(new K2.Button(blackKeyArgs), {zIndex: 10});
             }
             this.ui.refresh();
+
+        this.saveState = function () {
+            return { bin: this.loadedSample };
+        };
 
         // Initialization made it so far: plugin is ready.
         args.hostInterface.setInstanceStatus ('ready');
