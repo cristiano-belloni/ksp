@@ -263,8 +263,11 @@ define(['require', 'kievII', 'image'], function(require, K2) {
 
         if (args.initialState && args.initialState.bin) {
             /* Load data */
-            var evt = {};
-            evt.target.result = args.initialState.bin.loadedSample;
+            var evt = {
+                target: {
+                    result: args.initialState.bin.loadedSample
+                }
+            };
             this.handleReaderLoad (evt);
         }
         else {
