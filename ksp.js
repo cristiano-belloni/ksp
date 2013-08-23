@@ -262,7 +262,7 @@ define(['require', 'kievII', 'image'], function(require, K2) {
             }
             this.ui.refresh();
 
-        this.saveState = function () {
+        var saveState = function () {
             var obj = { 
                 bin: {
                     loadedSample: this.loadedSample
@@ -270,6 +270,7 @@ define(['require', 'kievII', 'image'], function(require, K2) {
             };
             return obj;
         };
+        args.hostInterface.setSaveState (saveState);
 
         // Initialization made it so far: plugin is ready.
         args.hostInterface.setInstanceStatus ('ready');
