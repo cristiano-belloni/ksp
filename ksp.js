@@ -42,16 +42,6 @@ define(['require', 'kievII', 'image'], function(require, K2) {
         this.viewHeight = args.canvas.height;
         this.canvas = args.canvas;
 
-        if (args.initialState && args.initialState.bin) {
-            /* Load data */
-            var evt = {};
-            evt.target = args.initialState.bin.sample;
-            this.handleReaderLoad (evt);
-        }
-        else {
-            this.loadedSample = null;
-        }
-
         /*this.handler = args.OSCHandler;
 
         var oscCallback = function (message) {
@@ -271,6 +261,19 @@ define(['require', 'kievII', 'image'], function(require, K2) {
             return obj;
         };
         args.hostInterface.setSaveState (saveState);
+
+        if (args.initialState && args.initialState.bin) {
+            /* Load data */
+            var evt = {
+                target: {
+                    result: args.initialState.bin.loadedSample
+                }
+            };
+            this.handleReaderLoad (evt);
+        }
+        else {
+            this.loadedSample = null;
+        }
 
         // Initialization made it so far: plugin is ready.
         args.hostInterface.setInstanceStatus ('ready');
