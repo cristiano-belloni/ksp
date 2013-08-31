@@ -90,7 +90,7 @@ define(['require', 'github:janesconference/KievII@jspm0.5/dist/kievII'], functio
 
             this.decoded_arrayL = decoded.getChannelData (0);
 
-            // Todo one has got to check if the signal is mono or stero here
+            // TODO check if the signal is mono or stero here
             //this.decoded_arrayR = decoded.getChannelData (1);
 
             console.log ("I got the data!");
@@ -132,6 +132,8 @@ define(['require', 'github:janesconference/KievII@jspm0.5/dist/kievII'], functio
         }.bind(this);
 
         this.handleReaderLoad = function (evt) {
+
+            this.loadedSample = evt.target.result;
             console.log (evt);
 
             console.log ("Decoding file");
@@ -249,6 +251,29 @@ define(['require', 'github:janesconference/KievII@jspm0.5/dist/kievII'], functio
                 this.ui.addElement(new K2.Button(blackKeyArgs), {zIndex: 10});
             }
             this.ui.refresh();
+
+        var saveState = function () {
+            var obj = { 
+                bin: {
+                    loadedSample: this.loadedSample
+                } 
+            };
+            return obj;
+        };
+        args.hostInterface.setSaveState (saveState);
+
+        if (args.initialState && args.initialState.bin) {
+            /* Load data */
+            var evt = {
+                target: {
+                    result: args.initialState.bin.loadedSample
+                }
+            };
+            this.handleReaderLoad (evt);
+        }
+        else {
+            this.loadedSample = null;
+        }
 
         // Initialization made it so far: plugin is ready.
         args.hostInterface.setInstanceStatus ('ready');
