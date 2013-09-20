@@ -78,10 +78,10 @@ define(['require', 'github:janesconference/KievII@jspm0.5/dist/kievII'], functio
 
         this.playFinishedCallback = function () {
             console.log('playback finished');
-        }
+        };
         this.viewCurrentTime = function (time) {
             console.log(time);
-        }
+        };
 
         this.successCallback = function (decoded) {
             console.log ("Decode succeeded!");
@@ -164,6 +164,36 @@ define(['require', 'github:janesconference/KievII@jspm0.5/dist/kievII'], functio
 
         this.ui.addElement(bgArgs, {zIndex: 0});
 
+        var noteOn = function (stPower) {
+            
+           this.bSrc = this.audioContext.createBufferSource();
+           this.bSrc.connect (this.audioDestination);
+           this.bSrc.buffer = this.audioBuffer;
+           this.bSrc.playbackRate.value = Math.pow(1.0595, stPower);
+           this.bSrc.loop = false;
+           
+           if (typeof this.bSrc.start !== 'function') {
+                this.bSrc.noteOn(0);
+           }
+           else {
+                this.bSrc.start(0);
+           }
+            
+        }.bind(this);
+
+        var noteOff = function () {
+            
+            if (this.stopOnLeavingKey) {
+               if (typeof this.bSrc.stop !== 'function') {
+                    this.bSrc.noteOff(0);
+               }
+               else {
+                    this.bSrc.stop(0);
+               }
+            }
+            
+        }.bind(this);
+
         var keyCallback = function (slot, value, element) {
 
             var stIndex = 0;
@@ -186,34 +216,18 @@ define(['require', 'github:janesconference/KievII@jspm0.5/dist/kievII'], functio
             }
 
             if (this.audioBuffer !== null) {
-               if (value === 1) {
-                   this.bSrc = this.audioContext.createBufferSource();
-                   this.bSrc.connect (this.audioDestination);
-                   this.bSrc.buffer = this.audioBuffer;
-                   this.bSrc.playbackRate.value = Math.pow(1.0595, stPower);
-                   this.bSrc.loop = false;
-				   if (typeof this.bSrc.start !== 'function') {
-				       	this.bSrc.noteOn(0);
-				   }
-				   else {
-					   	this.bSrc.start(0);
-				   }
+                if (value === 1) {
+                    noteOn (stPower);
                 }
                 else if (value === 0) {
-                    if (this.stopOnLeavingKey) {
-	 				   if (typeof this.bSrc.stop !== 'function') {
-	 				       	this.bSrc.noteOff(0);
-	 				   }
-	 				   else {
-	 					   	this.bSrc.stop(0);
-	 				   }
-
-                    }
+                    noteOff ();
                 }
             }
+            
+            this.ui.refresh();
 
-               this.ui.refresh();
-            }.bind(this);
+        }.bind(this);
+
 
         // White keys
         var whiteKeyArgs = {
@@ -251,6 +265,21 @@ define(['require', 'github:janesconference/KievII@jspm0.5/dist/kievII'], functio
                 this.ui.addElement(new K2.Button(blackKeyArgs), {zIndex: 10});
             }
             this.ui.refresh();
+
+        var onMIDIMessage = function (message) {
+            if (message.type === 'noteon') {
+                // translate message.pitch into the desidered pitch;
+                // TODO translate message.velocity. We must implement polyvoices here, and set a gain node for every one of the voices.
+                // TODO See if the key is an a particular range, if it is, just set the correct (on) value in K2
+                // call the noteOn method
+
+            }
+            if (message.type === 'noteoff') {
+                // TODO See if the key is an a particular range, if it is, just set the correct (off) value in K2
+            }
+        };
+
+        args.MIDIHandler.setMIDICallback (onMIDIMessage. bind (this));
 
         var saveState = function () {
             var obj = { 
