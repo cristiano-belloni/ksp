@@ -269,6 +269,9 @@ define(['require', 'github:janesconference/KievII@jspm0.5/dist/kievII'], functio
         var onMIDIMessage = function (message) {
             if (message.type === 'noteon') {
                 // translate message.pitch into the desidered pitch;
+                var semiTones = message.pitch - 60;
+                noteOn (semiTones);
+
                 // TODO translate message.velocity. We must implement polyvoices here, and set a gain node for every one of the voices.
                 // TODO See if the key is an a particular range, if it is, just set the correct (on) value in K2
                 // call the noteOn method
