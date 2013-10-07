@@ -116,7 +116,6 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
                 };
 
                 waveboxArgs.onValueSet = function (slot, value, element) {
-                    console.log ("onValueSet callback: slot is ", slot, " and value is ", value, " while el is ", element);
                     this.ui.refresh();
                 }.bind(this);
 
