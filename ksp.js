@@ -60,8 +60,9 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
             var count = files.length;
 
             // Only call the handler if 1 or more files was dropped.
-            if (count > 0)
-            this.handleFiles(files);
+            if (count > 0) {
+                this.handleFiles(files);
+            }
         }.bind(this);
 
         this.handleFiles = function (files) {
@@ -69,6 +70,9 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
             var file = files[0];
             console.log ("Loading ", file.name);
             var reader = new FileReader();
+
+            // set the file to save in the future
+            this.loadedSample = file;
 
             // init the reader event handlers
             reader.onload = this.handleReaderLoad;
@@ -133,7 +137,6 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
 
         this.handleReaderLoad = function (evt) {
 
-            this.loadedSample = evt.target.result;
             console.log (evt);
 
             console.log ("Decoding file");
@@ -296,12 +299,7 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
 
         if (args.initialState && args.initialState.bin) {
             /* Load data */
-            var evt = {
-                target: {
-                    result: args.initialState.bin.loadedSample
-                }
-            };
-            this.handleReaderLoad (evt);
+            this.handleFiles ([args.initialState.bin.loadedSample]);
         }
         else {
             this.loadedSample = null;
