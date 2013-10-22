@@ -68,7 +68,7 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
         this.handleFiles = function (files) {
 
             var file = files[0];
-            console.log ("Loading ", file.name);
+            //console.log ("Loading ", file.name);
             var reader = new FileReader();
 
             // set the file to save in the future
@@ -296,7 +296,7 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
         };
         args.hostInterface.setSaveState (saveState);
 
-        if (args.initialState && args.initialState.bin && args.initialState.bin !== null) {
+        if (args.initialState && args.initialState.bin) {
             /* Load data */
             this.handleFiles ([args.initialState.bin.loadedSample]);
         }
