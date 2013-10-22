@@ -68,6 +68,8 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
         this.handleFiles = function (files) {
 
             var file = files[0];
+            if (!file) return;
+            
             console.log ("Loading ", files);
             var reader = new FileReader();
 
