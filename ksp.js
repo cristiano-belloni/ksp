@@ -295,8 +295,8 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
                 } 
             };
             return obj;
-        };
-        args.hostInterface.setSaveState (saveState.bind(this));
+        }.bind(this);
+        args.hostInterface.setSaveState (saveState);
 
         if (args.initialState && args.initialState.bin) {
             /* Load data */
@@ -351,7 +351,7 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
             pluginFunction.call (this, args, imgResources);
         }
 
-    };
+    }
 
     return {
       initPlugin: initPlugin,
