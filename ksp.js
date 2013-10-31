@@ -69,7 +69,7 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
 
             var file = files[0];
             if (!file) return;
-            
+
             console.log ("Loading ", files);
             var reader = new FileReader();
 
@@ -296,7 +296,7 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
             };
             return obj;
         };
-        args.hostInterface.setSaveState (saveState);
+        args.hostInterface.setSaveState (saveState.bind(this));
 
         if (args.initialState && args.initialState.bin) {
             /* Load data */
