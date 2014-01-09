@@ -168,8 +168,10 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
 
         this.ui.addElement(bgArgs, {zIndex: 0});
 
-        var noteOn = function (stPower) {
-            
+        var noteOn = function (stPower, when) {
+           
+            if (!when) {when = 0;}
+
            this.bSrc = this.audioContext.createBufferSource();
            this.bSrc.connect (this.audioDestination);
            this.bSrc.buffer = this.audioBuffer;
@@ -177,10 +179,10 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
            this.bSrc.loop = false;
            
            if (typeof this.bSrc.start !== 'function') {
-                this.bSrc.noteOn(0);
+                this.bSrc.noteOn(when);
            }
            else {
-                this.bSrc.start(0);
+                this.bSrc.start(when);
            }
             
         }.bind(this);
@@ -221,7 +223,7 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
 
             if (this.audioBuffer !== null) {
                 if (value === 1) {
-                    noteOn (stPower);
+                    noteOn (stPower, 0);
                 }
                 else if (value === 0) {
                     noteOff ();
@@ -270,11 +272,11 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
             }
             this.ui.refresh();
 
-        var onMIDIMessage = function (message) {
+        var onMIDIMessage = function (message, when) {
             if (message.type === 'noteon') {
                 // translate message.pitch into the desidered pitch;
                 var semiTones = message.pitch - 60;
-                noteOn (semiTones);
+                noteOn (semiTones, when);
 
                 // TODO translate message.velocity. We must implement polyvoices here, and set a gain node for every one of the voices.
                 // TODO See if the key is an a particular range, if it is, just set the correct (on) value in K2
@@ -289,10 +291,10 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
         args.MIDIHandler.setMIDICallback (onMIDIMessage. bind (this));
 
         var saveState = function () {
-            var obj = { 
+            var obj = {
                 bin: {
                     loadedSample: this.loadedSample
-                } 
+                }
             };
             return obj;
         }.bind(this);
