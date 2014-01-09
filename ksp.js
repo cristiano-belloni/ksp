@@ -274,6 +274,7 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
 
         var onMIDIMessage = function (message, when) {
             if (message.type === 'noteon') {
+                console.log ("when / now", when, this.audioContext.currentTime);
                 // translate message.pitch into the desidered pitch;
                 var semiTones = message.pitch - 60;
                 noteOn (semiTones, when);
