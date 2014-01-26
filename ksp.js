@@ -9,6 +9,7 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
         audioIn: 0,
         audioOut: 1,
         version: '0.0.2',
+	hyaId: 'KSP',
         ui: {
             type: 'canvas',
             width: 428,
