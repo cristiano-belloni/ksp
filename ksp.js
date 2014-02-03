@@ -5,11 +5,10 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
     /* This gets returned to the host as soon as the plugin is loaded */
     var pluginConf = {
         name: "KSP",
-        osc: false,
         audioIn: 0,
         audioOut: 1,
         version: '0.0.2',
-	hyaId: 'KSP',
+        hyaId: 'KSP',
         ui: {
             type: 'canvas',
             width: 428,
@@ -26,8 +25,6 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
         var keyWhiteDownImage = resources[3];
         var deckImage = resources[4];
 
-        console.log ("plugin inited, args is", args, "KievII object is ", K2);
-
         this.name = args.name;
         this.id = args.id;
 
@@ -42,15 +39,6 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
         this.viewWidth = args.canvas.width;
         this.viewHeight = args.canvas.height;
         this.canvas = args.canvas;
-
-        /*this.handler = args.OSCHandler;
-
-        var oscCallback = function (message) {
-           console.log ("KSP-001 received message: ", message);
-           var dest = message.toString();
-        }.bind(this);
-
-        this.handler.setCallback(oscCallback); */
 
         // Member methods
         this.drop = function (evt) {
@@ -71,7 +59,6 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
             var file = files[0];
             if (!file) return;
 
-            console.log ("Loading ", files);
             var reader = new FileReader();
 
             // set the file to save in the future
@@ -84,14 +71,11 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
         }.bind(this);
 
         this.playFinishedCallback = function () {
-            console.log('playback finished');
         };
         this.viewCurrentTime = function (time) {
-            console.log(time);
         };
 
         this.successCallback = function (decoded) {
-            console.log ("Decode succeeded!");
 
             this.audioBuffer = decoded;
 
@@ -99,8 +83,6 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
 
             // TODO check if the signal is mono or stero here
             //this.decoded_arrayR = decoded.getChannelData (1);
-
-            console.log ("I got the data!");
 
             var waveID = 'wavebox_L';
 
@@ -133,18 +115,12 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
         }.bind(this);
 
         this.errorCallback = function () {
-            console.log ("Error!");
+            console.error ("Error!");
             // TODO signal the error to the user
         }.bind(this);
 
         this.handleReaderLoad = function (evt) {
-
-            console.log (evt);
-
-            console.log ("Decoding file");
-
             this.audioContext.decodeAudioData(evt.target.result, this.successCallback, this.errorCallback);
-
         }.bind(this);
 
         // Drop event
@@ -275,7 +251,6 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
 
         var onMIDIMessage = function (message, when) {
             if (message.type === 'noteon') {
-                console.log ("when / now", when, this.audioContext.currentTime);
                 // translate message.pitch into the desidered pitch;
                 var semiTones = message.pitch - 60;
                 noteOn (semiTones, when);
@@ -320,13 +295,9 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
 
         var args = initArgs;
 
-        console.log ("initArgs", initArgs);
-
         var requireErr = function (err) {
             args.hostInterface.setInstanceStatus ('fatal', {description: 'Error initializing plugin'});
         }.bind(this);
-
-        console.log ("imgResources", imgResources);
 
         if (imgResources === null) {
             var resList = [ './assets/images/keyblack.png!image',
@@ -336,16 +307,13 @@ define(['require', 'github:janesconference/KievII@0.6.0/kievII'], function(requi
                             './assets/images/deck.png!image'
                             ];
 
-            console.log ("requiring...");
-
             require (resList,
                         function () {
-                            console.log ("required...");
                             imgResources = arguments;
                             pluginFunction.call (this, args, arguments);
                         }.bind(this),
                         function (err) {
-                            console.log ("require error");
+                            console.error ("require error");
                             requireErr (err);
                         }
                     );
